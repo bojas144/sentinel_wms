@@ -1,0 +1,49 @@
+Wtorek:
+Zapoznanie się z materiałami, przygotowanie środowiska pracy: QGIS, VSC, biblioteki pythona. Próba stworzenia VM (nie udało się).
+Środa:
+Stworzenie templatki z wtyczką, zapoznanie się ze strukturą plików wtyczki. Próba dodania usługi wms jako warstwy z wtyczki. Problemy przy 
+definiowaniu adresu usługi, analiza metadanych usługi Sentinel 1. Ostatecznie dodanie usług wms zakończone powodzeniem.
+Czwartek:
+Stworzenie podstawowego layoutu, skonfigurowanie przycisków dla usługi sentinel-1 oraz sentinel-2.
+Ostateczne zdefiniowanie poprawnego adresu url usługi. Zdefiniowanie parametrów sentinel-1
+Piątek:
+Wgranie ikony. Dodanie jednoczesnej obsługi sentinel-1 oraz sentinel-2. Zdefiniowanie parametrów sentinel-2. Dodanie opcji
+zmiany aktywnej warstwy oraz wgrania nowej warstwy. Obsługa błędów.
+
+
+handling błędów trzeba zrobić np. początkowa data nie moze być większa niż końcowa
+
+
+http://64.225.135.141.nip.io/?map=/etc/mapserver/S1-PT.map&VERSION=1.3.0&
+BBOX=-90,-180,90,180&CRS=EPSG:4326&WIDTH=691&HEIGHT=347&LAYERS=Sentinel-1 IW_GRDH_1S&
+STYLES=&DPI=158&MAP_RESOLUTION=158&FORMAT_OPTIONS=dpi:158&TRANSPARENT=TRUE&pol=VH&TIME=2023-05-01/2023-05-05
+
+moze dodac opcje dodawania paczki wms, to znaczy na raz wrzucic 3 warstwy, kazda z inna data.
+suwak transparentnosci + suwak do CC + zmiana EPSG + kopiowanie URL + reload?
+
++ dodac epsg obsługiwany przez WMS 
+
++ dodac suwak „transparency”, do płynnego jego zmieniania w załadowanych warstwach; ma to też na celu weryfikację, czy umiemy zmieniać z poziomu wtyczki wszystkie properties warstw 
+
++- dodać url (z guzkiem copy), który można skopiować, zeby wyswietlić png w przegladarce 
+
+- do weryfikacji, co trzeba zrobić po stronie serwera (Marcin), żeby guzik info zwracał wartość piksela 
+
+- do rozważenia możliwość budowy timelapsów (gif) z poziomu wtyczki 
+
+EPSG:
+2180
+3857
+4326
+
+
+zrobic klase dla url, zeby robic urla dla qgisa i url z getmap dla uzytkownika
+
+IgnoreGetMapUrl=1&crs=EPSG:4326&dpiMode=7&format=image/png&layers=Sentinel-1%20IW_GRDH_1S&
+styles&url=http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map%26VERSION%3D1.3.0
+%26BBOX%3D-90,-180,90,180%26CRS%3DEPSG:4326%26WIDTH%3D691%26HEIGHT%3D347%26LAYERS%3DSentinel-1%20IW_GRDH_1S%26STYLES
+%3D%26DPI%3D158%26MAP_RESOLUTION%3D158%26FORMAT_OPTIONS%3Ddpi:158%26TRANSPARENT%3DTRUE%26pol%3DVH%26TIME%3D2023-05-01/2023-05-05
+
+zrobic guzik do kopiowania i dozucic do url parametry
+
+kopiowanie do guzika potrzebuje zewnetrznej biblioteki, zrobic pozniej

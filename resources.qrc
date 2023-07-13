@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/sentinel_wms" >
+        <file>cf-logo.png</file>
+    </qresource>
+</RCC>
