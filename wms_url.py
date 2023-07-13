@@ -64,5 +64,3 @@ dummy = WmsUrl('http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
                'image/png',
                '2023-05-01/2023-05-05',
                ['pol', 'VV'])
-
-#print(dummy.params)
