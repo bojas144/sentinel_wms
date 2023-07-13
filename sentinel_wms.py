@@ -43,15 +43,24 @@ class SentinelWMS:
     s1Hidden = False
 
     s1UrlTest = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
-            crs='EPSG:4326',
+                       crs='EPSG:4326',
                        bbox='-100,-100,100,100',
                        version='1.3',
-               width='1000',
-               height='600',
-               layers='Sentinel-1%20IW_GRDH_1S',
-               format='image/png')
+                       width='1000',
+                       height='600',
+                       layers='Sentinel-1%20IW_GRDH_1S',
+                       format='image/png')
+    
+    s2UrlTest = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S2-PT.map',
+                       crs='EPSG:4326',
+                       bbox='-100,-100,100,100',
+                       version='1.3',
+                       width='1000',
+                       height='600',
+                       layers='S2MSI2A%20Ukraine',
+                       format='image/png')
 
-    __s1UrlTemplate = "IgnoreGetMapUrl=1&dpiMode=7&format=image/png&layers=Sentinel-1%20IW_GRDH_1S&styles&url=http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map%26VERSION%3D1.3.0%26BBOX%3D-90,-180,90,180%26CRS%3DEPSG:4326%26WIDTH%3D691%26HEIGHT%3D347%26LAYERS%3DSentinel-1%20IW_GRDH_1S%26STYLES%3D%26DPI%3D158%26MAP_RESOLUTION%3D158%26FORMAT_OPTIONS%3Ddpi:158%26TRANSPARENT%3DTRUE%26"
+    __s1UrlTemplate = "IgnoreGetMapUrl=1&format=image/png&layers=Sentinel-1%20IW_GRDH_1S&styles&url=http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map%26"
 
     __s2UrlTemplate = "IgnoreGetMapUrl=1&crs=EPSG:4326&dpiMode=7&format=image/png&layers=S2MSI2A%20Ukraine&styles&url=http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S2-PT.map%26VERSION%3D1.3.0%26BBOX%3D1381306.275553602492,5183386.680486263707,4883406.024684443139,7991345.14467981644%26CRS%3DEPSG:3857%26WIDTH%3D1004%26HEIGHT%3D806%26LAYERS%3DS2MSI2A%20Ukraine%26STYLES%3D%26DPI%3D96%26MAP_RESOLUTION%3D96%26FORMAT_OPTIONS%3Ddpi:96%26TRANSPARENT%3DTRUE"
 
@@ -274,7 +283,8 @@ class SentinelWMS:
 
     def createLayer(self):
         urlWithParams, title = self.createUrl()
-        newLayer = QgsRasterLayer(urlWithParams, title, 'wms')
+        newLayer = QgsRasterLayer(self.s1UrlTest.getQgisUrl(), title, 'wms')
+        print(self.s1UrlTest.getQgisUrl())
         if not newLayer.isValid():
             raise Exception("Unvalid url")
         else:
@@ -282,13 +292,18 @@ class SentinelWMS:
             self.dockwidget.setCopyUrl(self.s1UrlTest.getMap())
 
     def createUrl(self):
+        # Check which mission was choosen, read parameters
         if self.s1Hidden:
+            self.s1UrlTest.url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S2-PT.map'
+            self.s1UrlTest.layers='S2MSI2A%20Ukraine'
             time = self.dockwidget.getTime([self.dockwidget.s2StartDate, self.dockwidget.s2EndDate])
             maxCc = self.dockwidget.getS2MaxCc()
             params = ['maxCC', maxCc]
             urlWithParams = self.__s2UrlTemplate + "%26maxCC%3D" + maxCc + "%26TIME%3D" + time
             layerTitle = 'Sentinel-2' + ' ' + 'maxCC:' + maxCc + ' ' + 'time:' + time
         else:
+            self.s1UrlTest.url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map'
+            self.s1UrlTest.layers='Sentinel-1%20IW_GRDH_1S'
             pol = self.dockwidget.getS1Pol()
             params = ['pol', pol]
             time = self.dockwidget.getTime([self.dockwidget.s1StartDate, self.dockwidget.s1EndDate])
