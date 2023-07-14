@@ -33,7 +33,8 @@ from .wms_url import WmsUrl
 
 # Import the code for the DockWidget
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
-import os.path
+import os.path, shutil, requests
+from PIL import Image
 
 
 
@@ -257,6 +258,7 @@ class SentinelWMS:
             self.dockwidget.pushBtn.clicked.connect(self.btnAddWms)
             self.dockwidget.satList.currentTextChanged.connect(self.hideBox)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
+            self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
@@ -317,6 +319,24 @@ class SentinelWMS:
         ###
         urlWithParams = 'crs=' + crs + '&' + urlWithParams
         return urlWithParams, layerTitle
+    
+    def createGif(self):
+        days = self.dockwidget.getTimestap()
+        frames = []
+        path = ''
+        url = self.s1UrlTest
+        for d in days:
+            url.time = d
+            response = requests.get(url.getMap(), stream=True)
+            with open(path + d[-2:] + '.png', 'wb') as out_file:
+                shutil.copyfileobj(response.raw, out_file)
+            del response
+            frames.append(Image.open(path + d[-2:] + '.png'))
+            os.remove(path + d[-2:] + '.png')
+        del url
+        frame_one = frames[0]
+        frame_one.save("/home/mbojko/.local/share/QGIS/QGIS3/profiles/default/python/plugins/sentinel_wms/Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+        print('zrobione!')
 
     def hideBox(self):
         if self.s1Hidden:

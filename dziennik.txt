@@ -25,7 +25,7 @@ suwak transparentnosci + suwak do CC + zmiana EPSG + kopiowanie URL + reload?
 
 + dodac suwak „transparency”, do płynnego jego zmieniania w załadowanych warstwach; ma to też na celu weryfikację, czy umiemy zmieniać z poziomu wtyczki wszystkie properties warstw 
 
-+- dodać url (z guzkiem copy), który można skopiować, zeby wyswietlić png w przegladarce 
++ dodać url (z guzkiem copy), który można skopiować, zeby wyswietlić png w przegladarce 
 
 - do weryfikacji, co trzeba zrobić po stronie serwera (Marcin), żeby guzik info zwracał wartość piksela 
 
