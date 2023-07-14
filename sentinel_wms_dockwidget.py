@@ -72,12 +72,6 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for x in availableEpsg: self.epsgList.addItem(preffix + x)
 
     def getEpsg(self):
-        # idx = self.epsgList.currentIndex()
-        # epsg = {
-        #     0: "4326",
-        #     1: "3857",
-        #     2: "2180"
-        # }
         return str(self.epsgList.currentText())
 
     def getS1Pol(self):
@@ -122,6 +116,13 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def setCopyUrl(self, url):
         #url = 'request=GetMap' + url
         self.leCopyUrl.setText(url)
+
+    def getCopyUrl(self):
+        return self.leCopyUrl.text()
+
+    def copyToClipboard(self):
+        cb = QtWidgets.QApplication.clipboard()
+        cb.setText(self.leCopyUrl.text())
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

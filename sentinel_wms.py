@@ -278,13 +278,12 @@ class SentinelWMS:
             self.dockwidget.setWarningText(str(e))
 
     def btnCopyUrl(self):
-        url = self.s1UrlTest.getMap()
-        print(url)
+        self.dockwidget.copyToClipboard()
 
     def createLayer(self):
         urlWithParams, title = self.createUrl()
         newLayer = QgsRasterLayer(self.s1UrlTest.getQgisUrl(), title, 'wms')
-        print(self.s1UrlTest.getQgisUrl())
+        #print(self.s1UrlTest.getQgisUrl())
         if not newLayer.isValid():
             raise Exception("Unvalid url")
         else:
