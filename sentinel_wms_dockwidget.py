@@ -100,12 +100,12 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def getTimestap(self):
         startDate = self.deGifStart.date().toPyDate()
         endDate = self.deGifEnd.date().toPyDate()
+        if (endDate < startDate):
+            raise Exception("Start date cannot be later than end date!")
         delta = endDate - startDate   # returns timedelta
         days = []
         for i in range(delta.days + 1):
-            days.append(
-                str(startDate) + '/' + str(startDate + timedelta(days=i))
-                )
+            days.append(str(startDate) + '/' + str(startDate + timedelta(days=i)))
         return days
     
     def getS2MaxCc(self):
