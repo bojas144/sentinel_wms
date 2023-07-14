@@ -325,23 +325,29 @@ class SentinelWMS:
         print(dirname)
 
     def createGif(self):
-        dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
-        dirname = dirname + '/'
-        days = self.dockwidget.getTimestap()
-        frames = []
-        url = self.s1UrlTest
-        for d in days:
-            url.time = d
-            response = requests.get(url.getMap(), stream=True)
-            with open(dirname + d[-2:] + '.png', 'wb') as out_file:
-                shutil.copyfileobj(response.raw, out_file)
-            del response
-            frames.append(Image.open(dirname + d[-2:] + '.png'))
-            os.remove(dirname + d[-2:] + '.png')
-        del url
-        frame_one = frames[0]
-        frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
-        print('zrobione!')
+        try:
+            days = self.dockwidget.getTimestap()
+            frames = []
+            url = self.s1UrlTest
+            dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
+            if len(dirname) == 0:
+                return
+            dirname = dirname + '/'
+            print(dirname)
+            for d in days:
+                url.time = d
+                response = requests.get(url.getMap(), stream=True)
+                with open(dirname + d[-2:] + '.png', 'wb') as out_file:
+                    shutil.copyfileobj(response.raw, out_file)
+                del response
+                frames.append(Image.open(dirname + d[-2:] + '.png'))
+                os.remove(dirname + d[-2:] + '.png')
+            del url
+            frame_one = frames[0]
+            frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+        except Exception as e:
+            print(e)
+            self.dockwidget.setWarningText(str(e))
 
     def hideBox(self):
         if self.s1Hidden:
