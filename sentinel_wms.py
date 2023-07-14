@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from qgis.core import QgsRasterLayer, QgsProject
 from qgis.utils import iface
 # Initialize Qt resources from file resources.py
@@ -320,22 +320,27 @@ class SentinelWMS:
         urlWithParams = 'crs=' + crs + '&' + urlWithParams
         return urlWithParams, layerTitle
     
+    def chooseDirPath(self):
+        dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
+        print(dirname)
+
     def createGif(self):
+        dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
+        dirname = dirname + '/'
         days = self.dockwidget.getTimestap()
         frames = []
-        path = ''
         url = self.s1UrlTest
         for d in days:
             url.time = d
             response = requests.get(url.getMap(), stream=True)
-            with open(path + d[-2:] + '.png', 'wb') as out_file:
+            with open(dirname + d[-2:] + '.png', 'wb') as out_file:
                 shutil.copyfileobj(response.raw, out_file)
             del response
-            frames.append(Image.open(path + d[-2:] + '.png'))
-            os.remove(path + d[-2:] + '.png')
+            frames.append(Image.open(dirname + d[-2:] + '.png'))
+            os.remove(dirname + d[-2:] + '.png')
         del url
         frame_one = frames[0]
-        frame_one.save("/home/mbojko/.local/share/QGIS/QGIS3/profiles/default/python/plugins/sentinel_wms/Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+        frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
         print('zrobione!')
 
     def hideBox(self):
