@@ -27,6 +27,7 @@ import os
 from qgis.PyQt import QtGui, QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.utils import iface
+from datetime import timedelta
 
 #Import qgis libraries for python
 from qgis.core import QgsRasterLayer, QgsProject
@@ -89,6 +90,17 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if (endDate < startDate):
             raise Exception("Start date cannot be later than end date!")
         return str(startDate) + '/' + str(endDate)
+    
+    def getTimestap(self):
+        startDate = self.deGifStart.date().toPyDate()
+        endDate = self.deGifEnd.date().toPyDate()
+        if (endDate < startDate):
+            raise Exception("Start date cannot be later than end date!")
+        delta = endDate - startDate   # returns timedelta
+        days = []
+        for i in range(delta.days + 1):
+            days.append(str(startDate) + '/' + str(startDate + timedelta(days=i)))
+        return days
     
     def getS2MaxCc(self):
         return str(round(self.qowMaxCc.opacity()*100))

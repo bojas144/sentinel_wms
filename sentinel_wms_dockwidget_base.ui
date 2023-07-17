@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>738</width>
-    <height>820</height>
+    <height>885</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -250,8 +250,18 @@
     </item>
     <item>
      <widget class="QgsOpacityWidget" name="qowOpacity">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="opacity">
        <double>1.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>URL to image png</string>
       </property>
      </widget>
     </item>
@@ -276,6 +286,74 @@
         <widget class="QPushButton" name="pbCopyUrl">
          <property name="text">
           <string>Copy Url</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Create timestap gif</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="frame_2">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QDateEdit" name="deGifStart">
+         <property name="maximumDate">
+          <date>
+           <year>2023</year>
+           <month>5</month>
+           <day>5</day>
+          </date>
+         </property>
+         <property name="minimumDate">
+          <date>
+           <year>2023</year>
+           <month>5</month>
+           <day>1</day>
+          </date>
+         </property>
+         <property name="calendarPopup">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDateEdit" name="deGifEnd">
+         <property name="maximumDate">
+          <date>
+           <year>2023</year>
+           <month>5</month>
+           <day>5</day>
+          </date>
+         </property>
+         <property name="minimumDate">
+          <date>
+           <year>2023</year>
+           <month>5</month>
+           <day>1</day>
+          </date>
+         </property>
+         <property name="calendarPopup">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbCreateGif">
+         <property name="text">
+          <string>Create GIF</string>
          </property>
         </widget>
        </item>

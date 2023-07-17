@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from qgis.core import QgsRasterLayer, QgsProject
 from qgis.utils import iface
 # Initialize Qt resources from file resources.py
@@ -33,7 +33,8 @@ from .wms_url import WmsUrl
 
 # Import the code for the DockWidget
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
-import os.path
+import os.path, shutil, requests
+from PIL import Image
 
 
 
@@ -257,6 +258,7 @@ class SentinelWMS:
             self.dockwidget.pushBtn.clicked.connect(self.btnAddWms)
             self.dockwidget.satList.currentTextChanged.connect(self.hideBox)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
+            self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
@@ -317,6 +319,35 @@ class SentinelWMS:
         ###
         urlWithParams = 'crs=' + crs + '&' + urlWithParams
         return urlWithParams, layerTitle
+    
+    def chooseDirPath(self):
+        dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
+        print(dirname)
+
+    def createGif(self):
+        try:
+            days = self.dockwidget.getTimestap()
+            frames = []
+            url = self.s1UrlTest
+            dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
+            if len(dirname) == 0:
+                return
+            dirname = dirname + '/'
+            print(dirname)
+            for d in days:
+                url.time = d
+                response = requests.get(url.getMap(), stream=True)
+                with open(dirname + d[-2:] + '.png', 'wb') as out_file:
+                    shutil.copyfileobj(response.raw, out_file)
+                del response
+                frames.append(Image.open(dirname + d[-2:] + '.png'))
+                os.remove(dirname + d[-2:] + '.png')
+            del url
+            frame_one = frames[0]
+            frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+        except Exception as e:
+            print(e)
+            self.dockwidget.setWarningText(str(e))
 
     def hideBox(self):
         if self.s1Hidden:
