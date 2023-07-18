@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>738</width>
-    <height>885</height>
+    <height>915</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -293,6 +293,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QLabel" name="lbCopyUrl">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="label_8">
       <property name="text">
        <string>Create timestap gif</string>
@@ -358,6 +368,23 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="lbCreateGif">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pbLayout">
+      <property name="text">
+       <string>Print layout to pdf</string>
+      </property>
      </widget>
     </item>
     <item>

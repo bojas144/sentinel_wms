@@ -137,6 +137,10 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         cb = QtWidgets.QApplication.clipboard()
         cb.setText(self.leCopyUrl.text())
 
+    def clearWarning(self):
+        if len(self.warning.text()) is not '':
+            self.warning.setText('')
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()

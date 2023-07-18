@@ -21,7 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from qgis.core import QgsRasterLayer, QgsProject
@@ -61,6 +61,8 @@ class SentinelWMS:
                        height='1024',
                        layers='S2MSI2A%20Ukraine',
                        format='image/png')
+    
+    _timer = QTimer()
 
     def __init__(self, iface):
         """Constructor.
@@ -252,10 +254,15 @@ class SentinelWMS:
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+            self.dockwidget.pushBtn.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pushBtn.clicked.connect(self.btnAddWms)
             self.dockwidget.satList.currentTextChanged.connect(self.hideBox)
+            self.dockwidget.pbCopyUrl.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
+            self.dockwidget.pbCreateGif.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
+            self._timer.timeout.connect(self.clearLbCopyUrl)
+            self._timer.timeout.connect(self.clearLbCreateGif)
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
@@ -268,6 +275,17 @@ class SentinelWMS:
         else:
             return self.__s1UrlTemplate
 
+    def clearLbCopyUrl(self):
+        self.dockwidget.lbCopyUrl.setText('')
+        self._timer.stop()
+
+    def clearLbCreateGif(self):
+        self.dockwidget.lbCreateGif.setText('')
+        self._timer.stop()
+
+    def timerStart(self, obj, txt):
+        obj.setText(txt)
+        self._timer.start(2000)
 
     def btnAddWms(self):
         self.dockwidget.setWarningText("")
@@ -284,6 +302,7 @@ class SentinelWMS:
 
     def btnCopyUrl(self):
         self.dockwidget.copyToClipboard()
+        self.timerStart(self.dockwidget.lbCopyUrl, 'Copied to url!')
 
     def createLayer(self):
         urlWithParams, title = self.createUrl()
@@ -332,6 +351,7 @@ class SentinelWMS:
             del url
             frame_one = frames[0]
             frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+            self.timerStart(self.dockwidget.lbCreateGif, 'Created gif successfuly!')
         except Exception as e:
             print(e)
             self.dockwidget.setWarningText(str(e))
