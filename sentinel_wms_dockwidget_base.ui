@@ -361,6 +361,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="pbLayout">
+      <property name="text">
+       <string>Print layout to pdf</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="warning">
       <property name="font">
        <font>

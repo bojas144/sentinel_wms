@@ -22,9 +22,9 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QFont
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
-from qgis.core import QgsRasterLayer, QgsProject
+from qgis.core import *
 from qgis.utils import iface
 from qgis.gui import QgsMapToolEmitPoint
 # Initialize Qt resources from file resources.py
@@ -256,18 +256,78 @@ class SentinelWMS:
             self.dockwidget.satList.currentTextChanged.connect(self.hideBox)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
             self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
+            self.dockwidget.pbLayout.clicked.connect(self.setLayout)
 
             # show the dockwidget
             # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
+    def setLayout(self):
+        layers = [l for l in QgsProject.instance().mapLayers().values()]
+        x = [x for x in range(len(layers))]
+        x.sort(reverse=True)
+        names = [l.name() for l in QgsProject.instance().mapLayers().values()]
+        names = [names[i] for i in x]
+        layers = [layers[i] for i in x]
+        project = QgsProject.instance()
+        manager = project.layoutManager()
+        layoutName = 'Layout1'
+        layouts_list = manager.printLayouts()
+        # remove any duplicate layouts
+        for layout in layouts_list:
+            if layout.name() == layoutName:
+                manager.removeLayout(layout)
+        layout = QgsPrintLayout(project)
+        layout.initializeDefaults()
+        layout.setName(layoutName)
+        manager.addLayout(layout)
+        # create map item in the layout
+        map = QgsLayoutItemMap(layout)
+        map.setRect(20, 20, 20, 20)
+        # set the map extent
+        ms = QgsMapSettings()
+        ms.setLayers([layers[0]]) # set layers to be mapped
+        rect = QgsRectangle(ms.fullExtent())
+        rect.scale(1.0)
+        ms.setExtent(rect)
+        map.setExtent(rect)
+        layout.addLayoutItem(map)
+        map.attemptMove(QgsLayoutPoint(5, 20, QgsUnitTypes.LayoutMillimeters))
+        map.attemptResize(QgsLayoutSize(190, 177, QgsUnitTypes.LayoutMillimeters))
+        # set scalebar extent
+        scalebar = QgsLayoutItemScaleBar(layout)
+        scalebar.setStyle('Single Box')
+        scalebar.setLinkedMap(map)
+        scalebar.setSegmentSizeMode(QgsScaleBarSettings.SegmentSizeMode.SegmentSizeFitWidth)
+        scalebar.setMaximumBarWidth(90)
+        scalebar.setUnits(QgsUnitTypes.DistanceUnit.DistanceMeters)
+        scalebar.setUnitLabel('m')
+        layout.addLayoutItem(scalebar)
+        scalebar.attemptMove(QgsLayoutPoint(202, 182, QgsUnitTypes.LayoutMillimeters))
+        # set title extent
+        title = QgsLayoutItemLabel(layout)
+        title.setText("Print Layout for Cloudferro's WMS")
+        title.setFont(QFont("Ubuntu regular", 18, QFont.Bold))
+        title.adjustSizeToText()
+        layout.addLayoutItem(title)
+        title.attemptMove(QgsLayoutPoint(88, 8, QgsUnitTypes.LayoutMillimeters))
+        # set legend extent
+        legend = QgsLayoutItemLegend(layout)
+        legend.setTitle("Legend")
+        layout.addLayoutItem(legend)
+        legend.attemptMove(QgsLayoutPoint(202, 20, QgsUnitTypes.LayoutMillimeters))
+        # export
+        base_path = os.path.join(QgsProject.instance().homePath())
+        pdf_path = os.path.join(base_path, "output.pdf")
+        exporter = QgsLayoutExporter(layout)
+        exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+
     def getTemplateUrl(self):
         if self.s1Hidden:
             return self.__s2UrlTemplate
         else:
             return self.__s1UrlTemplate
-
 
     def btnAddWms(self):
         self.dockwidget.setWarningText("")
