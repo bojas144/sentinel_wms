@@ -289,7 +289,7 @@ class SentinelWMS:
         ms = QgsMapSettings()
         ms.setLayers([layers[0]]) # set layers to be mapped
         rect = QgsRectangle(ms.fullExtent())
-        rect.scale(1.0)
+        rect.scale(1.1)
         ms.setExtent(rect)
         map.setExtent(rect)
         layout.addLayoutItem(map)
@@ -321,7 +321,7 @@ class SentinelWMS:
         base_path = os.path.join(QgsProject.instance().homePath())
         pdf_path = os.path.join(base_path, "output.pdf")
         exporter = QgsLayoutExporter(layout)
-        exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+        # exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
 
     def getTemplateUrl(self):
         if self.s1Hidden:
