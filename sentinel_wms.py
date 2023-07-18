@@ -336,21 +336,21 @@ class SentinelWMS:
             days = self.dockwidget.getTimestap()
             frames = []
             url = self.getTemplateUrl()
-            dirname = str(QFileDialog.getExistingDirectory(self.dockwidget, "Select Directory"))
-            if len(dirname) == 0:
-                return
-            dirname = dirname + '/'
+            pluginDir = os.path.dirname(os.path.realpath(__file__))
+            projectDir = os.path.join(QgsProject.instance().homePath())
+            filename, filters = QFileDialog.getSaveFileName(self.dockwidget, "Save gif file", projectDir, "GIF (*.gif)")
+            imgPath = pluginDir + '/' + 'ImgForGif' + '.png'
             for d in days:
                 url.time = d
                 response = requests.get(url.getMap(), stream=True)
-                with open(dirname + d[-2:] + '.png', 'wb') as out_file:
+                with open(imgPath, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
-                frames.append(Image.open(dirname + d[-2:] + '.png'))
-                os.remove(dirname + d[-2:] + '.png')
+                frames.append(Image.open(imgPath))
+                os.remove(imgPath)
             del url
             frame_one = frames[0]
-            frame_one.save(dirname + "Sentinel1.gif", format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
+            frame_one.save(filename, format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
             self.timerStart(self.dockwidget.lbCreateGif, 'Created gif successfuly!')
         except Exception as e:
             print(e)
