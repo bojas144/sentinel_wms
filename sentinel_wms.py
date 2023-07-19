@@ -263,6 +263,7 @@ class SentinelWMS:
             self.dockwidget.show()
 
     def setLayout(self):
+        activeLayer = iface.activeLayer()
         layers = [l for l in QgsProject.instance().mapLayers().values()]
         x = [x for x in range(len(layers))]
         x.sort(reverse=True)
@@ -286,7 +287,7 @@ class SentinelWMS:
         map.setRect(20, 20, 20, 20)
         # set the map extent
         ms = QgsMapSettings()
-        ms.setLayers([layers[0]]) # set layers to be mapped
+        ms.setLayers([activeLayer]) # set layers to be mapped
         rect = QgsRectangle(ms.fullExtent())
         rect.scale(1.1)
         ms.setExtent(rect)
@@ -299,9 +300,9 @@ class SentinelWMS:
         scalebar.setStyle('Single Box')
         scalebar.setLinkedMap(map)
         scalebar.setSegmentSizeMode(QgsScaleBarSettings.SegmentSizeMode.SegmentSizeFitWidth)
-        scalebar.setMaximumBarWidth(90)
-        scalebar.setUnits(QgsUnitTypes.DistanceUnit.DistanceMeters)
-        scalebar.setUnitLabel('m')
+        scalebar.setMaximumBarWidth(80)
+        scalebar.setUnits(QgsUnitTypes.DistanceUnit.DistanceKilometers)
+        scalebar.setUnitLabel('km')
         layout.addLayoutItem(scalebar)
         scalebar.attemptMove(QgsLayoutPoint(202, 182, QgsUnitTypes.LayoutMillimeters))
         # set title extent
@@ -314,6 +315,8 @@ class SentinelWMS:
         # set legend extent
         legend = QgsLayoutItemLegend(layout)
         legend.setTitle("Legend")
+        legend.setWmsLegendHeight(0)
+        legend.setWmsLegendWidth(0)
         layout.addLayoutItem(legend)
         legend.attemptMove(QgsLayoutPoint(202, 20, QgsUnitTypes.LayoutMillimeters))
         # export
