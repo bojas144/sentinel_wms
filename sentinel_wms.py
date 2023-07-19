@@ -339,6 +339,8 @@ class SentinelWMS:
             pluginDir = os.path.dirname(os.path.realpath(__file__))
             projectDir = os.path.join(QgsProject.instance().homePath())
             filename, filters = QFileDialog.getSaveFileName(self.dockwidget, "Save gif file", projectDir, "GIF (*.gif)")
+            if len(filename) == 0:
+                return
             imgPath = pluginDir + '/' + 'ImgForGif' + '.png'
             for d in days:
                 url.time = d
