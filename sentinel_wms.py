@@ -23,10 +23,9 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon, QFont
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QDialog
 from qgis.core import *
 from qgis.utils import iface
-from qgis.gui import QgsMapToolEmitPoint
 # Initialize Qt resources from file resources.py
 from .resources import *
 
@@ -318,10 +317,23 @@ class SentinelWMS:
         layout.addLayoutItem(legend)
         legend.attemptMove(QgsLayoutPoint(202, 20, QgsUnitTypes.LayoutMillimeters))
         # export
-        base_path = os.path.join(QgsProject.instance().homePath())
-        pdf_path = os.path.join(base_path, "output.pdf")
+        pdfPath = self.saveFileDialog('pdf')
+        if pdfPath == None:
+            return
         exporter = QgsLayoutExporter(layout)
-        # exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+        exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
+
+    def saveFileDialog(self, extension):
+        dialog = QFileDialog()
+        dialog.setDirectory(os.path.join(QgsProject.instance().homePath()))
+        dialog.setFilter(dialog.filter() | QtCore.QDir.Hidden)
+        dialog.setDefaultSuffix(extension)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setNameFilters(['{} (*.{})'.format(extension, extension),'all (*.*)'])
+        if dialog.exec_() == QDialog.Accepted:
+            return dialog.selectedFiles()[0]
+        else:
+            return
 
     def getTemplateUrl(self):
         if self.s1Hidden:
