@@ -72,6 +72,9 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         ]
         for x in availableEpsg: self.epsgList.addItem(preffix + x)
 
+    def getSelectedMission(self):
+        return self.satList.currentIndex()
+
     def getEpsg(self):
         return str(self.epsgList.currentText())
 

@@ -41,7 +41,8 @@ from PIL import Image
 class SentinelWMS:
     """QGIS Plugin Implementation."""
 
-    s1Hidden = False
+    #s1Hidden = False
+    selectedMission = 0
 
     __s1UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
                        crs='EPSG:4326',
@@ -255,7 +256,8 @@ class SentinelWMS:
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
             self.dockwidget.pushBtn.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pushBtn.clicked.connect(self.btnAddWms)
-            self.dockwidget.satList.currentTextChanged.connect(self.hideBox)
+            #self.dockwidget.satList.currentIndexChanged.connect(self.dockwidget.getSelectenMission)
+            self.dockwidget.satList.currentIndexChanged.connect(self.hideBox)
             self.dockwidget.pbCopyUrl.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
             self.dockwidget.pbCreateGif.clicked.connect(self.dockwidget.clearWarning)
@@ -271,19 +273,27 @@ class SentinelWMS:
             self.dockwidget.show()
 
     def hideBox(self):
-        if self.s1Hidden:
-            self.dockwidget.s1Gb.show()
+        self.selectedMission = self.dockwidget.getSelectedMission()
+        if self.selectedMission == 0:
             self.dockwidget.s2Gb.hide()
-            self.s1Hidden = False
-        else:
+            self.dockwidget.s1Gb.show()
+        elif self.selectedMission == 1:
             self.dockwidget.s1Gb.hide()
             self.dockwidget.s2Gb.show()
-            self.s1Hidden = True
+        print(self.selectedMission)
+        # if self.s1Hidden:
+        #     self.dockwidget.s1Gb.show()
+        #     self.dockwidget.s2Gb.hide()
+        #     self.s1Hidden = False
+        # else:
+        #     self.dockwidget.s1Gb.hide()
+        #     self.dockwidget.s2Gb.show()
+        #     self.s1Hidden = True
 
     def getTemplateUrl(self):
-        if self.s1Hidden:
+        if self.selectedMission == 1:
             return self.__s2UrlTemplate
-        else:
+        elif self.selectedMission == 0:
             return self.__s1UrlTemplate
 
     def clearLbCopyUrl(self):
@@ -338,12 +348,12 @@ class SentinelWMS:
 
     def createUrl(self):
         # Check which mission was choosen, read parameters
-        if self.s1Hidden:
+        if self.selectedMission == 1:
             time = self.dockwidget.getTime([self.dockwidget.s2StartDate, self.dockwidget.s2EndDate])
             maxCc = self.dockwidget.getS2MaxCc()
             params = ['maxCC', maxCc]
             layerTitle = 'Sentinel-2' + ' ' + 'maxCC:' + maxCc + ' ' + 'time:' + time
-        else:
+        elif self.selectedMission == 0:
             pol = self.dockwidget.getS1Pol()
             params = ['pol', pol]
             time = self.dockwidget.getTime([self.dockwidget.s1StartDate, self.dockwidget.s1EndDate])
