@@ -261,6 +261,7 @@ class SentinelWMS:
             self.dockwidget.pbCreateGif.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
             self.dockwidget.pbLayout.clicked.connect(self.createPrintLayout)
+            iface.layerTreeView().currentLayerChanged.connect(self.dockwidget.resetQowOpacity)
             self._timer.timeout.connect(self.clearLbCopyUrl)
             self._timer.timeout.connect(self.clearLbCreateGif)
 

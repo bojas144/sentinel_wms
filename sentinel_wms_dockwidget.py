@@ -126,6 +126,9 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             activeLayer.setOpacity(self.qowOpacity.opacity())
             activeLayer.reload()
 
+    def resetQowOpacity(self):
+        self.qowOpacity.setOpacity(iface.activeLayer().opacity())
+
     def setCopyUrl(self, url):
         #url = 'request=GetMap' + url
         self.leCopyUrl.setText(url)
