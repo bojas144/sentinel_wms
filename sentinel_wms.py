@@ -34,7 +34,7 @@ from .wms_url import WmsUrl
 # Import the code for the DockWidget
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
 import os.path, shutil, requests
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 
 
@@ -360,9 +360,8 @@ class SentinelWMS:
             frames = []
             url = self.getTemplateUrl()
             pluginDir = os.path.dirname(os.path.realpath(__file__))
-            projectDir = os.path.join(QgsProject.instance().homePath())
-            filename, filters = QFileDialog.getSaveFileName(self.dockwidget, "Save gif file", projectDir, "GIF (*.gif)")
-            if len(filename) == 0:
+            filename = self.saveFileDialog('gif')
+            if filename == None:
                 return
             imgPath = pluginDir + '/' + 'ImgForGif' + '.png'
             for d in days:
@@ -371,7 +370,10 @@ class SentinelWMS:
                 with open(imgPath, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
-                frames.append(Image.open(imgPath))
+                img = Image.open(imgPath)
+                myFont = ImageFont.truetype(font='/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf',size=30)
+                ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
+                frames.append(img)
                 os.remove(imgPath)
             del url
             frame_one = frames[0]
