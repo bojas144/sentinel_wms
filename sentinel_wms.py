@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QTimer
 from qgis.PyQt.QtGui import QIcon, QFont
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QDialog, QApplication
 from qgis.core import *
 from qgis.utils import iface
 # Initialize Qt resources from file resources.py
@@ -263,6 +263,7 @@ class SentinelWMS:
             self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
             self.dockwidget.pbLayout.clicked.connect(self.createPrintLayout)
             iface.layerTreeView().currentLayerChanged.connect(self.dockwidget.resetQowOpacity)
+            self.dockwidget.pbAddOsmTileLayer.clicked.connect(self.addOsmTile)
             self._timer.timeout.connect(self.clearLbCopyUrl)
             self._timer.timeout.connect(self.clearLbCreateGif)
 
@@ -316,15 +317,24 @@ class SentinelWMS:
             if self.dockwidget.isChangeActiveLayer():
                 oldLayer = iface.activeLayer()
                 QgsProject.instance().layerTreeRoot().removeLayer(oldLayer)
-            if self.dockwidget.isAddOsmLayer():
-                QgsProject.instance().addMapLayer(QgsRasterLayer('type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0','OSM tile layer', 'wms'))
+            # if self.dockwidget.isAddOsmLayer():
+            #     QgsProject.instance().addMapLayer(QgsRasterLayer('type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0','OSM tile layer', 'wms'))
             self.createLayer()
         except Exception as e:
             print(e)
             self.dockwidget.setWarningText(str(e))
 
+    def addOsmTile(self):
+        rlayer = QgsRasterLayer('type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0','OSM tile layer', 'wms')
+        QgsProject.instance().addMapLayer(rlayer, False)
+        layerTree = iface.layerTreeCanvasBridge().rootGroup()
+        layerTree.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
+
     def btnCopyUrl(self):
-        self.dockwidget.copyToClipboard()
+        url = self.getTemplateUrl()
+        url.bbox = self.setBBox()
+        cb = QApplication.clipboard()
+        cb.setText(url.getMap())
         self.timerStart(self.dockwidget.lbCopyUrl, 'Copied to url!')
 
     def createLayer(self):
@@ -359,6 +369,7 @@ class SentinelWMS:
             days = self.dockwidget.getTimestap()
             frames = []
             url = self.getTemplateUrl()
+            url.bbox = self.setBBox()
             pluginDir = os.path.dirname(os.path.realpath(__file__))
             filename = self.saveFileDialog('gif')
             if filename == None:
@@ -382,6 +393,14 @@ class SentinelWMS:
         except Exception as e:
             print(e)
             self.dockwidget.setWarningText(str(e))
+
+    def setBBox(self):
+        xmin = iface.mapCanvas().extent().xMinimum()
+        xmax = iface.mapCanvas().extent().xMaximum()
+        ymin = iface.mapCanvas().extent().yMinimum()
+        ymax = iface.mapCanvas().extent().yMaximum()
+        bbx = str(ymin) + ","+str(xmin) + "," +str(ymax) + "," +str(xmax)
+        return bbx
 
     def createPrintLayout(self):
         activeLayer = iface.activeLayer()

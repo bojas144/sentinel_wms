@@ -136,13 +136,6 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #url = 'request=GetMap' + url
         self.leCopyUrl.setText(url)
 
-    def getCopyUrl(self):
-        return self.leCopyUrl.text()
-
-    def copyToClipboard(self):
-        cb = QtWidgets.QApplication.clipboard()
-        cb.setText(self.leCopyUrl.text())
-
     def clearWarning(self):
         if len(self.warning.text()) is not '':
             self.warning.setText('')
