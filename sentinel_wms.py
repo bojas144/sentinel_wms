@@ -279,7 +279,6 @@ class SentinelWMS:
         elif self.selectedMission == 1:
             self.dockwidget.s1Gb.hide()
             self.dockwidget.s2Gb.show()
-        print(self.selectedMission)
 
     def getTemplateUrl(self):
         if self.selectedMission == 1:
