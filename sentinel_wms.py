@@ -41,7 +41,6 @@ from PIL import Image
 class SentinelWMS:
     """QGIS Plugin Implementation."""
 
-    #s1Hidden = False
     selectedMission = 0
 
     __s1UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
@@ -281,14 +280,6 @@ class SentinelWMS:
             self.dockwidget.s1Gb.hide()
             self.dockwidget.s2Gb.show()
         print(self.selectedMission)
-        # if self.s1Hidden:
-        #     self.dockwidget.s1Gb.show()
-        #     self.dockwidget.s2Gb.hide()
-        #     self.s1Hidden = False
-        # else:
-        #     self.dockwidget.s1Gb.hide()
-        #     self.dockwidget.s2Gb.show()
-        #     self.s1Hidden = True
 
     def getTemplateUrl(self):
         if self.selectedMission == 1:
