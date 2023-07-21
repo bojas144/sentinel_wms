@@ -35,8 +35,15 @@ from .wms_url import WmsUrl
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
 import os.path, shutil, requests
 from PIL import Image, ImageDraw, ImageFont
+from sys import platform
 
-
+def getOsFontsDirectory():
+    if platform == 'linux' or platform == 'linux2':
+        return '/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf'
+    elif platform == "darwin":
+        print('os x')
+    elif platform == "win32":
+        print('win32')
 
 class SentinelWMS:
     """QGIS Plugin Implementation."""
@@ -211,13 +218,7 @@ class SentinelWMS:
 
         # disconnects
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
-
-        # remove this statement if dockwidget is to remain
-        # for reuse if plugin is reopened
-        # Commented next statement since it causes QGIS crashe
-        # when closing the docked window:
-        # self.dockwidget = None
-
+        self.dockwidget = None
         self.pluginIsActive = False
 
 
@@ -344,7 +345,6 @@ class SentinelWMS:
             raise Exception("Unvalid url")
         else:
             QgsProject.instance().addMapLayer(newLayer)
-            self.dockwidget.setCopyUrl(urlWithParams.getMap())
 
     def createUrl(self):
         # Check which mission was choosen, read parameters
@@ -375,6 +375,10 @@ class SentinelWMS:
             if filename == None:
                 return
             imgPath = pluginDir + '/' + 'ImgForGif' + '.png'
+            cfLogo = Image.open(pluginDir + '/cf-logo.png')
+            cfLogo.thumbnail((100,100))
+            margin = 10
+            fontPath = getOsFontsDirectory()
             for d in days:
                 url.time = d
                 response = requests.get(url.getMap(), stream=True)
@@ -382,8 +386,9 @@ class SentinelWMS:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
                 img = Image.open(imgPath)
-                myFont = ImageFont.truetype(font='/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf',size=30)
+                myFont = ImageFont.truetype(font=fontPath,size=30)
                 ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
+                img.paste(cfLogo, (0 + margin, img.height - cfLogo.height - margin), cfLogo)
                 frames.append(img)
                 os.remove(imgPath)
             del url

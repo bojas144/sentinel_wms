@@ -360,7 +360,7 @@
     <item>
      <widget class="QPushButton" name="pbLayout">
       <property name="text">
-       <string>Print layout to pdf</string>
+       <string>Print layout of an active layer to pdf</string>
       </property>
      </widget>
     </item>
