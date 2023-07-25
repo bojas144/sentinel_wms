@@ -68,6 +68,9 @@ class SentinelWMS:
                        layers='CLD%20Masking',
                        format='image/png')
     
+    _bboxS1 = [(-180,180),(-90,90)]
+    _bboxS2 = [(-180,180),(-85,85)]
+    
     _timer = QTimer()
 
     def __init__(self, iface):
@@ -376,9 +379,9 @@ class SentinelWMS:
     
     def createGif(self):
         try:
-            if self.selectedMission == 1:
+            if self.selectedMission == 0:
                 days = self.dockwidget.getTimestap([self.dockwidget.deS1GifStart, self.dockwidget.deS1GifEnd])
-            elif self.selectedMission == 0:
+            elif self.selectedMission == 1:
                 days = self.dockwidget.getTimestap([self.dockwidget.deS2GifStart, self.dockwidget.deS2GifEnd])            
             frames = []
             url = self.getTemplateUrl()
@@ -418,8 +421,13 @@ class SentinelWMS:
             ymin = iface.mapCanvas().extent().yMinimum()
             ymax = iface.mapCanvas().extent().yMaximum()
             bbx = str(ymin) + ","+ str(xmin) + "," + str(ymax) + "," + str(xmax)
-            if (round(xmax) not in range(-180, 180)) or (round(xmin) not in range(-180, 180)) or (round(ymin) not in range(-90, 90)) or (round(ymax) not in range(-90,90)):
+            if self.selectedMission == 0:
+                exBbox = self._bboxS1
+            elif self.selectedMission == 1:
+                exBbox = self._bboxS2
+            if (round(xmax) not in range(exBbox[0][0], exBbox[0][1])) or (round(xmin) not in range(exBbox[0][0], exBbox[0][1])) or (round(ymin) not in range(exBbox[1][0], exBbox[1][1])) or (round(ymax) not in range(exBbox[1][0], exBbox[1][1])):
                 raise Exception(f"BBOX too big:\n {ymin}\n {xmin}\n {ymax}\n {xmax}\n")
+            del exBbox
             return bbx
 
     def createPrintLayout(self):
