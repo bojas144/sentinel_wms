@@ -338,11 +338,15 @@ class SentinelWMS:
         layerTree.insertChildNode(-1, QgsLayerTreeLayer(rlayer))
 
     def btnCopyUrl(self):
-        url = self.getTemplateUrl()
-        url.bbox = self.setBBox()
-        cb = QApplication.clipboard()
-        cb.setText(url.getMap())
-        self.timerStart(self.dockwidget.lbCopyUrl, 'Copied to url!')
+        try:
+            url = self.getTemplateUrl()
+            url.bbox = self.setBBox()
+            cb = QApplication.clipboard()
+            cb.setText(url.getMap())
+            self.timerStart(self.dockwidget.lbCopyUrl, 'Copied to url!')
+        except Exception as e:
+            print(e)
+            self.dockwidget.setWarningText(str(e))
 
     def createLayer(self):
         urlWithParams, title = self.createUrl()
@@ -383,7 +387,7 @@ class SentinelWMS:
             filename = self.saveFileDialog('gif')
             if filename == None:
                 return
-            imgPath = pluginDir + '/' + 'ImgForGif' + '.png'
+            imgPath = pluginDir + '/imgfor.png'
             cfLogo = Image.open(pluginDir + '/cf-logo.png')
             cfLogo.thumbnail((100,100))
             margin = 10
@@ -394,11 +398,11 @@ class SentinelWMS:
                 with open(imgPath, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
-                img = Image.open(imgPath)
-                myFont = ImageFont.truetype(font=fontPath,size=30)
-                ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
-                img.paste(cfLogo, (0 + margin, img.height - cfLogo.height - margin), cfLogo)
-                frames.append(img)
+                with Image.open(imgPath) as img:
+                    myFont = ImageFont.truetype(font=fontPath,size=30)
+                    ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
+                    img.paste(cfLogo, (0 + margin, img.height - cfLogo.height - margin), cfLogo)
+                    frames.append(img)
                 os.remove(imgPath)
             del url
             frame_one = frames[0]
@@ -409,12 +413,16 @@ class SentinelWMS:
             self.dockwidget.setWarningText(str(e))
 
     def setBBox(self):
-        xmin = iface.mapCanvas().extent().xMinimum()
-        xmax = iface.mapCanvas().extent().xMaximum()
-        ymin = iface.mapCanvas().extent().yMinimum()
-        ymax = iface.mapCanvas().extent().yMaximum()
-        bbx = str(ymin) + ","+str(xmin) + "," +str(ymax) + "," +str(xmax)
-        return bbx
+            xmin = iface.mapCanvas().extent().xMinimum()
+            xmax = iface.mapCanvas().extent().xMaximum()
+            ymin = iface.mapCanvas().extent().yMinimum()
+            ymax = iface.mapCanvas().extent().yMaximum()
+            bbx = str(ymin) + ","+ str(xmin) + "," + str(ymax) + "," + str(xmax)
+            if (xmax or xmin not in (-180,180)) or (ymax or xmin not in (-90,90)):
+                raise Exception(f"BBOX too big:\n {ymin} {xmin} {ymax} {xmax}")
+            elif ymax or ymin not in (-90,90):
+                raise Exception('BBOX too big!')
+            return bbx
 
     def createPrintLayout(self):
         activeLayer = iface.activeLayer()
