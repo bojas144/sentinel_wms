@@ -49,6 +49,7 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.initSatList()
         self.initEpsgList()
         self.s2Gb.hide()
+        self.s2Gif.hide()
         self.warning.setStyleSheet("color: red;")
         self.qowOpacity.opacityChanged.connect(self.setLayerOpacity)
 
@@ -94,9 +95,9 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             raise Exception("Start date cannot be later than end date!")
         return str(startDate) + '/' + str(endDate)
     
-    def getTimestap(self):
-        startDate = self.deGifStart.date().toPyDate()
-        endDate = self.deGifEnd.date().toPyDate()
+    def getTimestap(self, dateEdits):
+        startDate = dateEdits[0].date().toPyDate()
+        endDate = dateEdits[1].date().toPyDate()
         if (endDate < startDate):
             raise Exception("Start date cannot be later than end date!")
         delta = endDate - startDate   # returns timedelta

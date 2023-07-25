@@ -59,13 +59,13 @@ class SentinelWMS:
                        layers='Sentinel-1%20IW_GRDH_1S',
                        format='image/png')
     
-    __s2UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S2-PT.map',
+    __s2UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/piramida.map',
                        crs='EPSG:4326',
                        bbox='44.087585,20.961914,53.252069,40.561523',
                        version='1.3',
                        width='1600',
                        height='1024',
-                       layers='S2MSI2A%20Ukraine',
+                       layers='CLD%20Masking',
                        format='image/png')
     
     _timer = QTimer()
@@ -260,8 +260,10 @@ class SentinelWMS:
             self.dockwidget.satList.currentIndexChanged.connect(self.hideBox)
             self.dockwidget.pbCopyUrl.clicked.connect(self.dockwidget.clearWarning)
             self.dockwidget.pbCopyUrl.clicked.connect(self.btnCopyUrl)
-            self.dockwidget.pbCreateGif.clicked.connect(self.dockwidget.clearWarning)
-            self.dockwidget.pbCreateGif.clicked.connect(self.createGif)
+            self.dockwidget.pbS1CreateGif.clicked.connect(self.dockwidget.clearWarning)
+            self.dockwidget.pbS1CreateGif.clicked.connect(self.createGif)
+            self.dockwidget.pbS2CreateGif.clicked.connect(self.dockwidget.clearWarning)
+            self.dockwidget.pbS2CreateGif.clicked.connect(self.createGif)
             self.dockwidget.pbLayout.clicked.connect(self.createPrintLayout)
             iface.layerTreeView().currentLayerChanged.connect(self.dockwidget.resetQowOpacity)
             self.dockwidget.pbAddOsmTileLayer.clicked.connect(self.addOsmTile)
@@ -278,9 +280,13 @@ class SentinelWMS:
         if self.selectedMission == 0:
             self.dockwidget.s2Gb.hide()
             self.dockwidget.s1Gb.show()
+            self.dockwidget.s2Gif.hide()
+            self.dockwidget.s1Gif.show()
         elif self.selectedMission == 1:
             self.dockwidget.s1Gb.hide()
             self.dockwidget.s2Gb.show()
+            self.dockwidget.s1Gif.hide()
+            self.dockwidget.s2Gif.show()
 
     def getTemplateUrl(self):
         if self.selectedMission == 1:
@@ -366,7 +372,10 @@ class SentinelWMS:
     
     def createGif(self):
         try:
-            days = self.dockwidget.getTimestap()
+            if self.selectedMission == 1:
+                days = self.dockwidget.getTimestap([self.dockwidget.deS1GifStart, self.dockwidget.deS1GifEnd])
+            elif self.selectedMission == 0:
+                days = self.dockwidget.getTimestap([self.dockwidget.deS2GifStart, self.dockwidget.deS2GifEnd])            
             frames = []
             url = self.getTemplateUrl()
             url.bbox = self.setBBox()

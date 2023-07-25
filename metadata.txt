@@ -3,15 +3,14 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=CloudFerro Sentinel WMS plugin
+name=Toolbox for CloudFerro's WMS
 qgisMinimumVersion=3.0
-description=Plugin that shares CloudFerro's data from Sentinel
-version=0.1
+description=Plugin that provides tools for CloudFerro's data in form of Web Map Services
+version=1.0
 author=CloudFerro
 email=cloudferro@cloudferro.com
 
-about=Sentinel WMS provides data from Sentinel in form of WMS, which CloudFerro distriputes. Users can define parameters [time, polarisation] on base which WMS specific WMS will be added to the project.
-
+about=CloudFerro provides data from Sentinel-1 and Sentinel-2 in form of WMS. This plugin contains two types of functionalities: adding WMS layers and editting data for presentation. In first part, users can define specific parameters of services (e.g.: time, polaristaion). In second part, users can change transparency of an active layer, copy to clipboard GetMap service's url (this lets users to get png file after pasting url in their webbrowser), create gif based on time range and map view and create pdf file with printed layout (this function center view on currently active layer).
 tracker=http://bugs
 repository=http://repo
 # End of mandatory metadata
@@ -23,7 +22,7 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags=python, WMS, Sentinel-1, Sentinel-2
 
 homepage=http://homepage
 category=Plugins
@@ -40,7 +39,7 @@ deprecated=False
 # plugin_dependencies=
 
 Category of the plugin: Raster, Vector, Database or Web
-# category=
+# category=Web
 
 # If the plugin can run on QGIS Server.
 server=False
