@@ -418,10 +418,8 @@ class SentinelWMS:
             ymin = iface.mapCanvas().extent().yMinimum()
             ymax = iface.mapCanvas().extent().yMaximum()
             bbx = str(ymin) + ","+ str(xmin) + "," + str(ymax) + "," + str(xmax)
-            if (xmax or xmin not in (-180,180)) or (ymax or xmin not in (-90,90)):
-                raise Exception(f"BBOX too big:\n {ymin} {xmin} {ymax} {xmax}")
-            elif ymax or ymin not in (-90,90):
-                raise Exception('BBOX too big!')
+            if (round(xmax) not in range(-180, 180)) or (round(xmin) not in range(-180, 180)) or (round(ymin) not in range(-90, 90)) or (round(ymax) not in range(-90,90)):
+                raise Exception(f"BBOX too big:\n {ymin}\n {xmin}\n {ymax}\n {xmax}\n")
             return bbx
 
     def createPrintLayout(self):
