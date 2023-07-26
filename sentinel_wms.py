@@ -70,6 +70,7 @@ class SentinelWMS:
     
     _bboxS1 = [(-180,180),(-90,90)]
     _bboxS2 = [(-180,180),(-85,85)]
+    _availableCrs = ['EPSG:4326', 'EPSG:2180', 'EPSG:3857']
     
     _timer = QTimer()
 
@@ -343,6 +344,7 @@ class SentinelWMS:
     def btnCopyUrl(self):
         try:
             url = self.getTemplateUrl()
+            self.checkCrs()
             url.bbox = self.setBBox()
             cb = QApplication.clipboard()
             cb.setText(url.getMap())
@@ -421,14 +423,21 @@ class SentinelWMS:
             ymin = iface.mapCanvas().extent().yMinimum()
             ymax = iface.mapCanvas().extent().yMaximum()
             bbx = str(ymin) + ","+ str(xmin) + "," + str(ymax) + "," + str(xmax)
-            if self.selectedMission == 0:
-                exBbox = self._bboxS1
-            elif self.selectedMission == 1:
-                exBbox = self._bboxS2
-            if (round(xmax) not in range(exBbox[0][0], exBbox[0][1])) or (round(xmin) not in range(exBbox[0][0], exBbox[0][1])) or (round(ymin) not in range(exBbox[1][0], exBbox[1][1])) or (round(ymax) not in range(exBbox[1][0], exBbox[1][1])):
-                raise Exception(f"BBOX too big:\n {ymin}\n {xmin}\n {ymax}\n {xmax}\n")
-            del exBbox
+            # if self.selectedMission == 0:
+            #     exBbox = self._bboxS1
+            # elif self.selectedMission == 1:
+            #     exBbox = self._bboxS2
+            # if (round(xmax) not in range(exBbox[0][0], exBbox[0][1])) or (round(xmin) not in range(exBbox[0][0], exBbox[0][1])) or (round(ymin) not in range(exBbox[1][0], exBbox[1][1])) or (round(ymax) not in range(exBbox[1][0], exBbox[1][1])):
+            #     raise Exception(f"BBOX too big:\n {ymin}\n {xmin}\n {ymax}\n {xmax}\n")
+            # del exBbox
             return bbx
+    
+    def checkCrs(self):
+        crs = iface.mapCanvas().mapSettings().destinationCrs().authid()
+        if crs in self._availableCrs:
+            pass
+        else:
+            raise Exception('Unavailable CRS!')
 
     def createPrintLayout(self):
         activeLayer = iface.activeLayer()
