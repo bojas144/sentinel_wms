@@ -25,7 +25,7 @@
 import os
 
 from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal, QLocale
 from qgis.utils import iface
 from datetime import timedelta
 
@@ -52,6 +52,14 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.s2Gif.hide()
         self.warning.setStyleSheet("color: red;")
         self.qowOpacity.opacityChanged.connect(self.setLayerOpacity)
+        self.s1StartDate.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.s1EndDate.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.s2StartDate.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.s2EndDate.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.deS1GifStart.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.deS1GifEnd.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.deS2GifStart.calendarWidget().setLocale(QLocale(QLocale.English))
+        self.deS2GifEnd.calendarWidget().setLocale(QLocale(QLocale.English))
 
     def initSatList(self):
         self.satList.addItem('Sentinel1')
