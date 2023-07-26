@@ -131,7 +131,10 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             activeLayer.reload()
 
     def resetQowOpacity(self):
-        self.qowOpacity.setOpacity(iface.activeLayer().opacity())
+        if iface.activeLayer() is None:
+            self.qowOpacity.setOpacity(1)
+        else:
+            self.qowOpacity.setOpacity(iface.activeLayer().opacity())
 
     def clearWarning(self):
         if len(self.warning.text()) is not '':
