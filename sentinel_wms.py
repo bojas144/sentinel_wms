@@ -59,13 +59,13 @@ class SentinelWMS:
                        layers='Sentinel-1%20IW_GRDH_1S',
                        format='image/png')
     
-    __s2UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/piramida.map',
+    __s2UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/piramida_cloudless.map',
                        crs='EPSG:4326',
                        bbox='44.087585,20.961914,53.252069,40.561523',
                        version='1.3',
                        width='1600',
                        height='1024',
-                       layers='CLD%20Masking',
+                       layers='Cloudless%20Mozaik',
                        format='image/png')
     
     _bboxS1 = [(-180,180),(-90,90)]
