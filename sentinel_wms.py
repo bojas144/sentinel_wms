@@ -310,6 +310,12 @@ class SentinelWMS:
         obj.setText(txt)
         self._timer.start(2000)
 
+    def isLayerTreeEmpty(self):
+        if len([l for l in QgsProject.instance().mapLayers().values()]) == 0:
+            raise Exception("Layer tree is empty! Add WMS layer!")
+        else:
+            pass
+
     def saveFileDialog(self, extension):
         dialog = QFileDialog()
         dialog.setDirectory(os.path.join(QgsProject.instance().homePath()))
@@ -328,8 +334,6 @@ class SentinelWMS:
             if self.dockwidget.isChangeActiveLayer():
                 oldLayer = iface.activeLayer()
                 QgsProject.instance().layerTreeRoot().removeLayer(oldLayer)
-            # if self.dockwidget.isAddOsmLayer():
-            #     QgsProject.instance().addMapLayer(QgsRasterLayer('type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0','OSM tile layer', 'wms'))
             self.createLayer()
         except Exception as e:
             print(e)
@@ -343,6 +347,7 @@ class SentinelWMS:
 
     def btnCopyUrl(self):
         try:
+            self.isLayerTreeEmpty()
             url = self.getTemplateUrl()
             url.crs = self.checkCrs()
             url.bbox = self.setBBox()
@@ -381,14 +386,16 @@ class SentinelWMS:
     
     def createGif(self):
         try:
+            self.isLayerTreeEmpty()
+            pluginDir = os.path.dirname(os.path.realpath(__file__))
             if self.selectedMission == 0:
                 days = self.dockwidget.getTimestap([self.dockwidget.deS1GifStart, self.dockwidget.deS1GifEnd])
             elif self.selectedMission == 1:
                 days = self.dockwidget.getTimestap([self.dockwidget.deS2GifStart, self.dockwidget.deS2GifEnd])            
             frames = []
             url = self.getTemplateUrl()
+            url.crs = self.checkCrs()
             url.bbox = self.setBBox()
-            pluginDir = os.path.dirname(os.path.realpath(__file__))
             filename = self.saveFileDialog('gif')
             if filename == None:
                 return

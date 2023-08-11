@@ -97,7 +97,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Polarisation</string>
+          <string>Polarization</string>
          </property>
         </widget>
        </item>
