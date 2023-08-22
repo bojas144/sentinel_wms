@@ -203,16 +203,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Cloud coverage</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QgsOpacityWidget" name="qowMaxCc"/>
-       </item>
       </layout>
      </widget>
     </item>

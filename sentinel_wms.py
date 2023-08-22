@@ -370,9 +370,8 @@ class SentinelWMS:
         # Check which mission was choosen, read parameters
         if self.selectedMission == 1:
             time = self.dockwidget.getTime([self.dockwidget.s2StartDate, self.dockwidget.s2EndDate])
-            maxCc = self.dockwidget.getS2MaxCc()
-            params = ['maxCC', maxCc]
-            layerTitle = 'Sentinel-2' + ' ' + 'maxCC:' + maxCc + ' ' + 'time:' + time
+            layerTitle = 'Sentinel-2' + ' ' + 'time:' + time
+            params = []
         elif self.selectedMission == 0:
             pol = self.dockwidget.getS1Pol()
             params = ['pol', pol]
@@ -381,7 +380,8 @@ class SentinelWMS:
         urlWithParams = self.getTemplateUrl()
         urlWithParams.time = time
         urlWithParams.crs = self.dockwidget.getEpsg()
-        urlWithParams.params = (params,)
+        if len(params) != 0:
+            urlWithParams.params = (params,)
         return urlWithParams, layerTitle
     
     def createGif(self):

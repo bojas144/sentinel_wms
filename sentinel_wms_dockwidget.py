@@ -114,9 +114,6 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             days.append(str(startDate) + '/' + str(startDate + timedelta(days=i)))
         return days
     
-    def getS2MaxCc(self):
-        return str(round(self.qowMaxCc.opacity()*100))
-    
     def setWarningText(self, text):
         self.warning.setText(text)
 
