@@ -56,6 +56,9 @@ class WmsUrl:
             mapUrl = mapUrl + '&' + self.params[0][0] + '=' + self.params[0][1] + '&'
         mapUrl = mapUrl + '&request=GetMap'
         return mapUrl
+    
+    def getTitle(self):
+        return self.layers + ' ' + self.time
 
 dummy = WmsUrl('http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
                'EPSG:4326',

@@ -49,6 +49,7 @@ class SentinelWMS:
     """QGIS Plugin Implementation."""
 
     selectedMission = 0
+    selectedPolarista = 0
 
     __s1UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
                        crs='EPSG:4326',
@@ -57,6 +58,41 @@ class SentinelWMS:
                        width='1600',
                        height='1024',
                        layers='Sentinel-1%20IW_GRDH_1S',
+                       format='image/png')
+    
+    __s1VVUrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/vv.map',
+                       crs='EPSG:4326',
+                       bbox='-90,-180,90,180',
+                       version='1.3',
+                       width='1600',
+                       height='1024',
+                       layers='Sentinel-1%20vv',
+                       format='image/png')
+    
+    __s1VHUrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/vh.map',
+                       crs='EPSG:4326',
+                       bbox='-90,-180,90,180',
+                       version='1.3',
+                       width='1600',
+                       height='1024',
+                       layers='Sentinel-1%20vh',
+                       format='image/png')
+    
+    __s1HVUrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/hv.map',
+                       crs='EPSG:4326',
+                       bbox='-90,-180,90,180',
+                       version='1.3',
+                       width='1600',
+                       height='1024',
+                       layers='Sentinel-1%20hv',
+                       format='image/png')
+    __s1HHUrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/hh.map',
+                       crs='EPSG:4326',
+                       bbox='-90,-180,90,180',
+                       version='1.3',
+                       width='1600',
+                       height='1024',
+                       layers='Sentinel-1%20hh',
                        format='image/png')
     
     __s2UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/piramida_cloudless.map',
@@ -293,10 +329,18 @@ class SentinelWMS:
             self.dockwidget.s2Gif.show()
 
     def getTemplateUrl(self):
-        if self.selectedMission == 1:
+        if self.selectedMission == 0:
+            if self.dockwidget.getSelectedPolarisation() == 0:
+                return self.__s1VVUrlTemplate
+            elif self.dockwidget.getSelectedPolarisation() == 1:
+                return self.__s1VHUrlTemplate
+            elif self.dockwidget.getSelectedPolarisation() == 2:
+                return self.__s1HVUrlTemplate
+            elif self.dockwidget.getSelectedPolarisation() == 3:
+                return self.__s1HHUrlTemplate
             return self.__s2UrlTemplate
-        elif self.selectedMission == 0:
-            return self.__s1UrlTemplate
+        elif self.selectedMission == 1:
+            return self.__s2UrlTemplate
 
     def clearLbCopyUrl(self):
         self.dockwidget.lbCopyUrl.setText('')
@@ -359,8 +403,8 @@ class SentinelWMS:
             self.dockwidget.setWarningText(str(e))
 
     def createLayer(self):
-        urlWithParams, title = self.createUrl()
-        newLayer = QgsRasterLayer(urlWithParams.getQgisUrl(), title, 'wms')
+        urlWithParams = self.createUrl()
+        newLayer = QgsRasterLayer(urlWithParams.getQgisUrl(), urlWithParams.getTitle(), 'wms')
         if not newLayer.isValid():
             raise Exception("Unvalid url")
         else:
@@ -370,19 +414,12 @@ class SentinelWMS:
         # Check which mission was choosen, read parameters
         if self.selectedMission == 1:
             time = self.dockwidget.getTime([self.dockwidget.s2StartDate, self.dockwidget.s2EndDate])
-            layerTitle = 'Sentinel-2' + ' ' + 'time:' + time
-            params = []
         elif self.selectedMission == 0:
-            pol = self.dockwidget.getS1Pol()
-            params = ['pol', pol]
             time = self.dockwidget.getTime([self.dockwidget.s1StartDate, self.dockwidget.s1EndDate])
-            layerTitle = 'Sentinel-1' + ' ' + 'pol:' + pol + ' ' + 'time:' + time
         urlWithParams = self.getTemplateUrl()
         urlWithParams.time = time
         urlWithParams.crs = self.dockwidget.getEpsg()
-        if len(params) != 0:
-            urlWithParams.params = (params,)
-        return urlWithParams, layerTitle
+        return urlWithParams
     
     def createGif(self):
         try:

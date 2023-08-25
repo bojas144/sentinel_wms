@@ -68,7 +68,9 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def initPolList(self):
         availablePolarisations = [
             'VV',
-            'VH'
+            'VH',
+            'HV',
+            'HH'
         ]
         for x in availablePolarisations: self.polList.addItem(x)
 
@@ -83,6 +85,9 @@ class SentinelWMSDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def getSelectedMission(self):
         return self.satList.currentIndex()
+    
+    def getSelectedPolarisation(self):
+        return self.polList.currentIndex()
 
     def getEpsg(self):
         return str(self.epsgList.currentText())
