@@ -502,7 +502,8 @@ class SentinelWMS:
         # set the map extent
         ms = QgsMapSettings()
         ms.setLayers([activeLayer]) # set layers to be mapped
-        rect = QgsRectangle(ms.fullExtent())
+        bbox = [float(x) for x in self.setBBox().split(',')]
+        rect = QgsRectangle(bbox[1], bbox[0], bbox[3], bbox[2])
         rect.scale(1.1)
         ms.setExtent(rect)
         map.setExtent(rect)
@@ -528,10 +529,13 @@ class SentinelWMS:
         title.attemptMove(QgsLayoutPoint(88, 8, QgsUnitTypes.LayoutMillimeters))
         # set legend extent
         legend = QgsLayoutItemLegend(layout)
+        legend.setLinkedMap(map)
+        legend.setLegendFilterByMapEnabled(enabled=True)
         legend.setTitle("Legend")
         legend.setWmsLegendHeight(0)
         legend.setWmsLegendWidth(0)
         layout.addLayoutItem(legend)
+        print(legend.linkedMap())
         legend.attemptMove(QgsLayoutPoint(202, 20, QgsUnitTypes.LayoutMillimeters))
         # export
         pdfPath = self.saveFileDialog('pdf')
