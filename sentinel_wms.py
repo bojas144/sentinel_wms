@@ -33,7 +33,7 @@ from .wms_url import WmsUrl
 
 # Import the code for the DockWidget
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
-import os.path, shutil, requests
+import os.path, shutil, requests, subprocess, pickle
 from PIL import Image, ImageDraw, ImageFont
 from sys import platform
 
@@ -404,6 +404,7 @@ class SentinelWMS:
 
     def createLayer(self):
         urlWithParams = self.createUrl()
+        print(urlWithParams.getQgisUrl())
         newLayer = QgsRasterLayer(urlWithParams.getQgisUrl(), urlWithParams.getTitle(), 'wms')
         if not newLayer.isValid():
             raise Exception("Unvalid url")
@@ -477,16 +478,13 @@ class SentinelWMS:
             raise Exception('Unavailable CRS!')
 
     def createPrintLayout(self):
+        pdfPath = self.saveFileDialog('pdf')
+        if pdfPath == None:
+            return
         activeLayer = iface.activeLayer()
-        layers = [l for l in QgsProject.instance().mapLayers().values()]
-        x = [x for x in range(len(layers))]
-        x.sort(reverse=True)
-        names = [l.name() for l in QgsProject.instance().mapLayers().values()]
-        names = [names[i] for i in x]
-        layers = [layers[i] for i in x]
         project = QgsProject.instance()
         manager = project.layoutManager()
-        layoutName = 'Layout1'
+        layoutName = 'CloudFerro Layout'
         layouts_list = manager.printLayouts()
         # remove any duplicate layouts
         for layout in layouts_list:
@@ -496,6 +494,8 @@ class SentinelWMS:
         layout.initializeDefaults()
         layout.setName(layoutName)
         manager.addLayout(layout)
+        pc = layout.pageCollection()
+        layoutSize = pc.pages()[0].pageSize()
         # create map item in the layout
         map = QgsLayoutItemMap(layout)
         map.setRect(20, 20, 20, 20)
@@ -508,8 +508,8 @@ class SentinelWMS:
         ms.setExtent(rect)
         map.setExtent(rect)
         layout.addLayoutItem(map)
-        map.attemptMove(QgsLayoutPoint(5, 20, QgsUnitTypes.LayoutMillimeters))
-        map.attemptResize(QgsLayoutSize(190, 177, QgsUnitTypes.LayoutMillimeters))
+        map.attemptMove(QgsLayoutPoint(0, 20, QgsUnitTypes.LayoutMillimeters))
+        map.attemptResize(QgsLayoutSize(layoutSize.width(), layoutSize.height()-20, QgsUnitTypes.LayoutMillimeters))
         # set scalebar extent
         scalebar = QgsLayoutItemScaleBar(layout)
         scalebar.setStyle('Single Box')
@@ -519,7 +519,7 @@ class SentinelWMS:
         scalebar.setUnits(QgsUnitTypes.DistanceUnit.DistanceKilometers)
         scalebar.setUnitLabel('km')
         layout.addLayoutItem(scalebar)
-        scalebar.attemptMove(QgsLayoutPoint(202, 182, QgsUnitTypes.LayoutMillimeters))
+        scalebar.attemptMove(QgsLayoutPoint(202, layoutSize.height()-20, QgsUnitTypes.LayoutMillimeters))
         # set title extent
         title = QgsLayoutItemLabel(layout)
         title.setText("Print Layout for Cloudferro's WMS")
@@ -531,15 +531,40 @@ class SentinelWMS:
         legend = QgsLayoutItemLegend(layout)
         legend.setLinkedMap(map)
         legend.setLegendFilterByMapEnabled(enabled=True)
-        legend.setTitle("Legend")
+        legend.setTitle("Legend:")
         legend.setWmsLegendHeight(0)
         legend.setWmsLegendWidth(0)
         layout.addLayoutItem(legend)
-        print(legend.linkedMap())
-        legend.attemptMove(QgsLayoutPoint(202, 20, QgsUnitTypes.LayoutMillimeters))
+        legend.attemptMove(QgsLayoutPoint(3, 23, QgsUnitTypes.LayoutMillimeters))
+        # set north arrow extent
+        arrow = QgsLayoutItemPicture(layout)
+        arrow.setLinkedMap(map)
+        pluginDir = os.path.dirname(os.path.realpath(__file__))
+        arrow.setPicturePath(pluginDir+'/'+'north-arrow-2.svg')
+        layout.addLayoutItem(arrow)
+        arrow.setMinimumSize(QgsLayoutSize(15, 15, QgsUnitTypes.LayoutMillimeters))
+        arrow.attemptMove(QgsLayoutPoint(layoutSize.width()-20, 3, QgsUnitTypes.LayoutMillimeters))
         # export
+        exporter = QgsLayoutExporter(layout)
+        exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
+
+    def exportPrintLayout(self):
         pdfPath = self.saveFileDialog('pdf')
         if pdfPath == None:
             return
-        exporter = QgsLayoutExporter(layout)
-        exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
+        #print('pdf',(pdfPath))
+        #self.createPrintLayout()
+        #export(pdfPath, layout)
+        project = QgsProject.instance()
+        manager = project.layoutManager()
+        layouts_list = manager.printLayouts()
+        value = 'dupa'
+        try:
+            value = subprocess.check_output(['python3', '/home/mbojko/.local/share/QGIS/QGIS3/profiles/default/python/plugins/sentinel_wms/exportPrintLayout.py'])
+        except Exception as e:
+            print(e)
+        print(value)
+        # if pdfPath == None:
+        #     return
+        # exporter = QgsLayoutExporter(layout)
+        # exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
