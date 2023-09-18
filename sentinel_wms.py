@@ -33,7 +33,7 @@ from .wms_url import WmsUrl
 
 # Import the code for the DockWidget
 from .sentinel_wms_dockwidget import SentinelWMSDockWidget
-import os.path, shutil, requests, subprocess, pickle
+import os.path, shutil, requests, subprocess, concurrent.futures
 from PIL import Image, ImageDraw, ImageFont
 from sys import platform
 
@@ -49,16 +49,6 @@ class SentinelWMS:
     """QGIS Plugin Implementation."""
 
     selectedMission = 0
-    selectedPolarista = 0
-
-    __s1UrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map%3D/etc/mapserver/S1-PT.map',
-                       crs='EPSG:4326',
-                       bbox='-90,-180,90,180',
-                       version='1.3',
-                       width='1600',
-                       height='1024',
-                       layers='Sentinel-1%20IW_GRDH_1S',
-                       format='image/png')
     
     __s1VVUrlTemplate = WmsUrl(url='http://64.225.135.141.nip.io/?map=/etc/mapserver/vv.map',
                        crs='EPSG:4326',
@@ -438,22 +428,22 @@ class SentinelWMS:
             if filename == None:
                 return
             imgPath = pluginDir + '/imgfor.png'
-            cfLogo = Image.open(pluginDir + '/cf-logo.png')
-            cfLogo.thumbnail((100,100))
-            margin = 10
-            fontPath = getOsFontsDirectory()
-            for d in days:
-                url.time = d
-                response = requests.get(url.getMap(), stream=True)
-                with open(imgPath, 'wb') as out_file:
-                    shutil.copyfileobj(response.raw, out_file)
-                del response
-                with Image.open(imgPath) as img:
-                    myFont = ImageFont.truetype(font=fontPath,size=30)
-                    ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
-                    img.paste(cfLogo, (0 + margin, img.height - cfLogo.height - margin), cfLogo)
-                    frames.append(img)
-                os.remove(imgPath)
+            with Image.open(pluginDir + '/cf-logo.png') as cfLogo:
+                cfLogo.thumbnail((100,100))
+                margin = 10
+                fontPath = getOsFontsDirectory()
+                for d in days:
+                    url.time = d
+                    response = requests.get(url.getMap(), stream=True)
+                    with open(imgPath, 'wb') as out_file:
+                        shutil.copyfileobj(response.raw, out_file)
+                    del response
+                    with Image.open(imgPath) as img:
+                        myFont = ImageFont.truetype(font=fontPath,size=30)
+                        ImageDraw.Draw(img).text((10, 10), d, fill=(0,0,0), font=myFont)
+                        img.paste(cfLogo, (0 + margin, img.height - cfLogo.height - margin), cfLogo)
+                        frames.append(img)
+                    os.remove(imgPath)
             del url
             frame_one = frames[0]
             frame_one.save(filename, format="GIF", append_images=frames, save_all=True, duration=1000, loop=0)
@@ -547,24 +537,3 @@ class SentinelWMS:
         # export
         exporter = QgsLayoutExporter(layout)
         exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
-
-    def exportPrintLayout(self):
-        pdfPath = self.saveFileDialog('pdf')
-        if pdfPath == None:
-            return
-        #print('pdf',(pdfPath))
-        #self.createPrintLayout()
-        #export(pdfPath, layout)
-        project = QgsProject.instance()
-        manager = project.layoutManager()
-        layouts_list = manager.printLayouts()
-        value = 'dupa'
-        try:
-            value = subprocess.check_output(['python3', '/home/mbojko/.local/share/QGIS/QGIS3/profiles/default/python/plugins/sentinel_wms/exportPrintLayout.py'])
-        except Exception as e:
-            print(e)
-        print(value)
-        # if pdfPath == None:
-        #     return
-        # exporter = QgsLayoutExporter(layout)
-        # exporter.exportToPdf(pdfPath, QgsLayoutExporter.PdfExportSettings())
